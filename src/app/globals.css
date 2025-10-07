@@ -40,3 +40,7 @@ a {
     color-scheme: dark;
   }
 }
+
+.chakra-select__valueText{
+  padding: 0 20px;
+}
