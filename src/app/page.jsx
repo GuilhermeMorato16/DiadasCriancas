@@ -34,7 +34,9 @@ export default function Home() {
 
   const handleCadastro = async (e) => {
     e.preventDefault();
-    if (!nome || !cpf|| !empresa) {
+    setIsLoading(true);
+    
+    if (!nome || !cpf|| !empresa || !imageFile) {
       toaster.create({
         title: "Campos incompletos",
         description: "Por favor, preencha todos os campos e selecione uma imagem.",
