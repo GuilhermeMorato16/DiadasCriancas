@@ -48,11 +48,8 @@ export default function Home() {
 
     try {
       const formData = new FormData();
-      // 'image' é a chave que o backend (multer) espera
       formData.append('image', imageFile);
 
-      // ▼▼▼ PRINCIPAL MUDANÇA AQUI ▼▼▼
-      // A URL agora aponta para o nosso novo endpoint que usa o Cloudinary.
       const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
@@ -64,9 +61,8 @@ export default function Home() {
       }
 
       const data = await response.json();
-      const { imageUrl } = data; // A URL agora vem do Cloudinary, via nosso backend.
+      const { imageUrl } = data; 
 
-      // Salva os dados no Firestore, incluindo a nova URL da imagem do Cloudinary
       await addDoc(collection(db, "cadastros"), {
         nomeCompleto: nome,
         cpf: cpf,
@@ -117,11 +113,12 @@ export default function Home() {
         type="text" 
         value={nome}
         onChange={(e) => setNome(e.target.value)}
+            mb={10}
     />
-    
-    {/* mt={0} removido por ser desnecessário com o VStack */}
+
     <Input 
         px={5}
+        mb={10}
         id="cpf"
         placeholder="Insira seu CPF"
         type="text"
@@ -134,6 +131,7 @@ export default function Home() {
         collection={empresas}
         value={empresa ? [empresa.value] : []}
         onValueChange={(details) => setEmpresa(details.items[0])}
+        mb={10}
     >
         <Select.HiddenSelect />
         <Select.Control>
@@ -158,8 +156,9 @@ export default function Home() {
             </Select.Positioner>
         </Portal>
     </Select.Root>
-    
+    <Text>Insira aqui a imagem que você deseja usar para participar do nosso desafio</Text>
     <Input 
+        mb={10}
         px={5}
         id="file-input"
         type="file"
