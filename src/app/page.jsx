@@ -53,7 +53,7 @@ export default function Home() {
 
       // ▼▼▼ PRINCIPAL MUDANÇA AQUI ▼▼▼
       // A URL agora aponta para o nosso novo endpoint que usa o Cloudinary.
-      const response = await fetch('http://localhost:8080/api/upload-image', {
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });
