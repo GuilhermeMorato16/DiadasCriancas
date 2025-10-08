@@ -63,8 +63,19 @@ export default function Home() {
   // --- Funções de Evento e Lógica ---
 
   const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      const maxSize = 10 * 1024 * 1024; // 10 MB
+      if (file.size > maxSize) {
+        toaster.create({
+          title: "Arquivo muito grande",
+          description: "O tamanho máximo permitido para a imagem é 10 MB.",
+          type: "error",
+        });
+        e.target.value = ""; // Limpa o input
+        return;
+      }
+      setImageFile(file);
     }
   };
 
@@ -225,6 +236,7 @@ export default function Home() {
                 accept="image/*"
                 onChange={handleImageChange}
                 p={1.5}
+                
             	/>
               {imageFile && <Text fontSize="xs" color="gray.500">Arquivo: {imageFile.name}</Text>}
               
@@ -235,6 +247,7 @@ export default function Home() {
                 isLoading={isLoading}
                 loadingText="Enviando..."
                 spinnerPlacement="start"
+                
             	> 
                 <HiPlus style={{ marginRight: '8px' }} /> Me cadastrar
             	</Button>
