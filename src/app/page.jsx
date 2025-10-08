@@ -1,12 +1,12 @@
 'use client'
 import {
-  Box,
-  Button,
-  Heading,
-  VStack,
-  Input,
-  AbsoluteCenter,
-  Text,
+  Box,
+  Button,
+  Heading,
+  VStack,
+  Input,
+  AbsoluteCenter,
+  Text,
   Portal, 
   Select, 
   createListCollection 
@@ -21,17 +21,18 @@ import { toaster } from "@/components/ui/toaster";
 
 
 export default function Home() {
-  const [nome, setNome] = useState('');
-  const [cpf, setCpf] = useState('');
-  const [imageFile, setImageFile] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [empresa, setEmpresa] = useState(null); 
+  const [bonus, setBonus] = useState(null); 
 
-  const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
 
 const handleCadastro = async (e) => {
   e.preventDefault();
@@ -41,10 +42,10 @@ const handleCadastro = async (e) => {
 
   const cpfLimpo = cpf.replace(/\D/g, "");
 
-  if (!nome || !cpfLimpo || !empresa || !imageFile) {
+  if (!nome || !cpfLimpo || !empresa) {
     toaster.create({
       title: "Campos incompletos",
-      description: "Por favor, preencha todos os campos e selecione uma imagem.",
+      description: "Por favor, preencha nome, CPF e empresa.",
       type: "warning",
       duration: 3000,
     });
@@ -53,50 +54,64 @@ const handleCadastro = async (e) => {
   }
 
   try {
-    // 🔹 Verifica se o CPF já existe no Firestore
+    // 🔹 Verifica se o CPF já existe
     const q = query(collection(db, "cadastros"), where("cpf", "==", cpfLimpo));
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
       toaster.create({
         title: "CPF já cadastrado",
-        description: "Este CPF já foi usado em um cadastro anterior.",
+        description: "Este CPF já foi usado.",
         type: "error",
-        duration: 4000,
       });
       setIsLoading(false);
       return;
     }
-    const formData = new FormData();
-    formData.append("image", imageFile);
 
-    const response = await fetch("/api/upload-image", {
-      method: "POST",
-      body: formData,
-    });
+    // NOVO: Define valores padrão para o bônus e a imagem
+    let imageUrl = null;
+    const possuiBonus = imageFile ? true : false;
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Falha no upload da imagem.");
+    // ALTERADO: A lógica de upload só executa se houver uma imagem
+    if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+
+        const response = await fetch("/api/upload-image", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Falha no upload da imagem.");
+        }
+
+        const data = await response.json();
+        imageUrl = data.imageUrl; // Atribui a URL da imagem
+    }
+    
+    // ALTERADO: Cria o objeto de dados para salvar no Firestore
+    const dadosParaSalvar = {
+        nomeCompleto: nome.trim(),
+        cpf: cpfLimpo,
+        empresa: empresa.value,
+        possuiBonus: possuiBonus, // Salva se a pessoa tem o bônus ou não
+        dataCadastro: new Date(),
+    };
+
+    // Adiciona o campo imageUrl apenas se ele existir
+    if (imageUrl) {
+        dadosParaSalvar.imageUrl = imageUrl;
     }
 
-    const data = await response.json();
-    const { imageUrl } = data;
-
     // 🔹 Cria o novo cadastro no Firestore
-    await addDoc(collection(db, "cadastros"), {
-      nomeCompleto: nome.trim(),
-      cpf: cpfLimpo, // salva sempre no formato limpo
-      empresa: empresa.value,
-      imageUrl,
-      dataCadastro: new Date(),
-    });
+    await addDoc(collection(db, "cadastros"), dadosParaSalvar);
 
     toaster.create({
       title: "Sucesso!",
       description: "Cadastro realizado com sucesso.",
       type: "success",
-      duration: 3000,
     });
 
     // 🔹 Limpa o formulário
@@ -104,6 +119,8 @@ const handleCadastro = async (e) => {
     setCpf("");
     setEmpresa(null);
     setImageFile(null);
+    // Opcional: você pode remover o estado 'bonus' se não for mais usado na UI
+    setBonus(null); 
     document.getElementById("file-input").value = "";
 
   } catch (error) {
@@ -112,20 +129,23 @@ const handleCadastro = async (e) => {
       title: "Erro",
       description: error.message || "Ocorreu um erro ao realizar o cadastro.",
       type: "error",
-      duration: 3000,
     });
   } finally {
     setIsLoading(false);
   }
 };
-  return (
-    <AbsoluteCenter w="full">
-      <Box p={6} w="full" maxW="md">
-        <form onSubmit={handleCadastro}>
+  return (
+    <AbsoluteCenter w="full">
+      <Box p={6} w="full" maxW="md">
+        <form onSubmit={handleCadastro}>
     <fieldset disabled={isLoading}>
-          <VStack spacing={8} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
+          <VStack spacing={8} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
             <Heading textAlign={"center"} size={"2xl"} fontWeight={600}>FAÇA SEU CADASTRO</Heading>
             <Text textAlign={"center"}>Faça seu cadastro para participar do nosso desafio de dia das crianças!</Text>
+            <Input
+            type="hidden"
+            name=""
+            />
                 <Input 
                     px={5}
                     id="nome"
@@ -198,10 +218,10 @@ const handleCadastro = async (e) => {
                 </Button>
             </VStack>
             </fieldset>
-        </form>
-      </Box>
-    </AbsoluteCenter>
-  );
+        </form>
+      </Box>
+    </AbsoluteCenter>
+  );
 }
 
 const empresas = createListCollection({
