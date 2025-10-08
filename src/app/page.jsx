@@ -30,6 +30,7 @@ export default function Home() {
   const [empresa, setEmpresa] = useState(null);
 
   const isMd = useBreakpointValue({ base: false, md: true });
+  const isBase = useBreakpointValue({ base: true, md: false });
 
   // --- Funções Utilitárias ---
 
@@ -187,13 +188,15 @@ export default function Home() {
   // 3. JSX para renderização do formulário
   return (
     <AbsoluteCenter w="full">
-      <Box p={6} w="full" maxW="2xl" {...(isMd && { mt: 5 })} >
+      <Box p={6} w="full" maxW="2xl" {...(isBase && { mt: "150px", mb: "80px" })} >
         <form onSubmit={handleCadastro}>
           <fieldset disabled={isLoading}>
             <VStack spacing={6} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
               <Heading textAlign={"center"} size={{base: "2xl", md: "3xl"}} fontWeight={600}>Cadastre-se e desperte a criança {isMd && <br />}que existe em você!</Heading>
               <Text textAlign={"center"} fontSize={{base: "sm", md: "sm"}}>Preencha seus dados e entre para o desafio de Dia das Crianças!</Text>
-              <Text textAlign={"center"} fontSize={{base: "lg", md: "lg"}}mt={3} mb={0} pb={0}> Quer <strong>dobrar suas chances de ganhar</strong>? <br /><Text textAlign={"center"} as={"span"} fontSize={{base: "sm", md: "sm"}} mt={0} pt={0}> Mostre seu melhor sorriso e envie suas fotos mais criativas!</Text></Text>
+              <Text textAlign={"center"} fontSize={{base: "lg", md: "lg"}}mt={3} mb={0} pb={0}> Quer <strong>dobrar suas chances de ganhar</strong>? <br />
+                <Text textAlign={"center"} as={"span"} fontSize={{base: "sm", md: "sm"}} mt={0} pt={0}> Mostre seu melhor sorriso quando criança e envie sua foto mais criativa!</Text>
+              </Text>
               <Text fontWeight={"800"} mt={5} textAlign={"left"}>Dados necessários:</Text>
               <Input 
                 id="nome"
@@ -239,7 +242,7 @@ export default function Home() {
             	</Select.Root>
 
               <Text textAlign={"center"} fontSize="xl" fontWeight={700}>Agora é com você!</Text>
-              <Text textAlign={"center"} fontSize="sm">Envie sua foto mais fofa, estilosa ou divertida e participe {isMd && <br />} dessa brincadeiracheia de nostalgia e alegria.</Text>
+              <Text textAlign={"center"} fontSize="sm">Envie sua foto mais fofa, estilosa ou divertida e participe {isMd && <br />} dessa brincadeira cheia de nostalgia e alegria.</Text>
               <Input
                 id="file-input"
                 type="file"
