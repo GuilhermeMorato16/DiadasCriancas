@@ -16,8 +16,9 @@ import { useState } from "react";
 import { HiPlus } from "react-icons/hi2";
 import React from 'react';
 import { db } from './firebaseConfig';
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { toaster } from "@/components/ui/toaster";
+
 
 export default function Home() {
   const [nome, setNome] = useState('');
@@ -32,80 +33,102 @@ export default function Home() {
     }
   };
 
-  const handleCadastro = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    if (!nome || !cpf|| !empresa || !imageFile) {
-      toaster.create({
-        title: "Campos incompletos",
-        description: "Por favor, preencha todos os campos e selecione uma imagem.",
-        type: "warning",
-        duration: 3000,
-      });
-      return;
-    }
-    
-    setIsLoading(true);
+const handleCadastro = async (e) => {
+  e.preventDefault();
 
-    try {
-      const formData = new FormData();
-      formData.append('image', imageFile);
+  if (isLoading) return; // 🔒 Evita duplo clique
+  setIsLoading(true);
 
-      const response = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
+  // 🔹 Limpa o CPF removendo pontos, traços e espaços
+  const cpfLimpo = cpf.replace(/\D/g, "");
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha no upload da imagem.');
-      }
+  // 🔹 Validação de campos obrigatórios
+  if (!nome || !cpfLimpo || !empresa || !imageFile) {
+    toaster.create({
+      title: "Campos incompletos",
+      description: "Por favor, preencha todos os campos e selecione uma imagem.",
+      type: "warning",
+      duration: 3000,
+    });
+    setIsLoading(false);
+    return;
+  }
 
-      const data = await response.json();
-      const { imageUrl } = data; 
+  try {
+    // 🔹 Verifica se o CPF já existe no Firestore
+    const q = query(collection(db, "cadastros"), where("cpf", "==", cpfLimpo));
+    const querySnapshot = await getDocs(q);
 
-      await addDoc(collection(db, "cadastros"), {
-        nomeCompleto: nome,
-        cpf: cpf,
-        imageUrl: imageUrl, 
-        empresa: empresa.value,
-        dataCadastro: new Date(),
-      });
+    if (!querySnapshot.empty) {
+      toaster.create({
+        title: "CPF já cadastrado",
+        description: "Este CPF já foi usado em um cadastro anterior.",
+        type: "error",
+        duration: 4000,
+      });
+      setIsLoading(false);
+      return;
+    }
 
-      toaster.create({
-        title: "Sucesso!",
-        description: "Cadastro realizado com sucesso.",
-        type: "success",
-        duration: 3000,
-      });
+    // 🔹 Upload da imagem
+    const formData = new FormData();
+    formData.append("image", imageFile);
 
-      // Limpar campos
-      setNome('');
-      setCpf('');
-      setEmpresa(null);
-      setImageFile(null);
-      document.getElementById('file-input').value = '';
+    const response = await fetch("/api/upload-image", {
+      method: "POST",
+      body: formData,
+    });
 
-    } catch (error) {
-      console.error("Erro no cadastro: ", error);
-      toaster.create({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao realizar o cadastro.",
-        type: "error",
-        duration: 3000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Falha no upload da imagem.");
+    }
 
+    const data = await response.json();
+    const { imageUrl } = data;
+
+    // 🔹 Cria o novo cadastro no Firestore
+    await addDoc(collection(db, "cadastros"), {
+      nomeCompleto: nome.trim(),
+      cpf: cpfLimpo, // salva sempre no formato limpo
+      empresa: empresa.value,
+      imageUrl,
+      dataCadastro: new Date(),
+    });
+
+    toaster.create({
+      title: "Sucesso!",
+      description: "Cadastro realizado com sucesso.",
+      type: "success",
+      duration: 3000,
+    });
+
+    // 🔹 Limpa o formulário
+    setNome("");
+    setCpf("");
+    setEmpresa(null);
+    setImageFile(null);
+    document.getElementById("file-input").value = "";
+
+  } catch (error) {
+    console.error("Erro no cadastro:", error);
+    toaster.create({
+      title: "Erro",
+      description: error.message || "Ocorreu um erro ao realizar o cadastro.",
+      type: "error",
+      duration: 3000,
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
   return (
     <AbsoluteCenter w="full">
       <Box p={6} w="full" maxW="md">
         <form onSubmit={handleCadastro}>
+    <fieldset disabled={isLoading}>
           <VStack spacing={8} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
-    <Heading size={"2xl"} fontWeight={600}>FAÇA SEU CADASTRO</Heading>
+    <Heading textAlign={"center"} size={"2xl"} fontWeight={600}>FAÇA SEU CADASTRO</Heading>
     <Text textAlign={"center"}>Fazendo o seu cadastro você ganha mais uma chance de participar!</Text>
     
     <Input 
@@ -115,12 +138,12 @@ export default function Home() {
         type="text" 
         value={nome}
         onChange={(e) => setNome(e.target.value)}
-            mb={10}
+            mb={5}
     />
 
     <Input 
         px={5}
-        mb={10}
+        mb={5}
         id="cpf"
         placeholder="Insira seu CPF"
         type="text"
@@ -128,17 +151,15 @@ export default function Home() {
         onChange={(e) => setCpf(e.target.value)}
     />
     
-    {/* Props formatadas para melhor leitura e px={5} movido para o lugar certo */}
     <Select.Root 
         collection={empresas}
         value={empresa ? [empresa.value] : []}
         onValueChange={(details) => setEmpresa(details.items[0])}
-        mb={10}
+        mb={5}
     >
         <Select.HiddenSelect />
         <Select.Control>
             <Select.Trigger>
-                {/* px={5} removido daqui */}
                 <Select.ValueText placeholder="Selecione sua empresa" />
             </Select.Trigger>
             <Select.IndicatorGroup>
@@ -158,7 +179,7 @@ export default function Home() {
             </Select.Positioner>
         </Portal>
     </Select.Root>
-    <Text>Insira aqui a imagem que você deseja usar para participar do nosso desafio</Text>
+    <Text textAlign={"center"}>Insira aqui a imagem que você deseja usar para participar do nosso desafio</Text>
     <Input 
         mb={10}
         px={5}
@@ -168,7 +189,7 @@ export default function Home() {
         onChange={handleImageChange}
         py={1.5}
     />
-    {imageFile && <Text fontSize="sm" mt={2} color="gray.500">Arquivo: {imageFile.name}</Text>}
+    {imageFile && <Text fontSize="sm" mt={1} color="gray.500">Arquivo: {imageFile.name}</Text>}
             
     <Button 
         type="submit"
@@ -176,13 +197,14 @@ export default function Home() {
         colorScheme="blue"
         variant="solid" 
         width={"100%"}
-        isLoading={isLoading}
+        disabled={isLoading} 
         loadingText="Enviando..."
         spinnerPlacement="start"
     > 
         <HiPlus style={{ marginRight: '8px' }} /> Fazer cadastro
     </Button>
 </VStack>
+</fieldset>
         </form>
       </Box>
     </AbsoluteCenter>
