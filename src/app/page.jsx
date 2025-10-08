@@ -36,13 +36,11 @@ export default function Home() {
 const handleCadastro = async (e) => {
   e.preventDefault();
 
-  if (isLoading) return; // 🔒 Evita duplo clique
+  if (isLoading) return;
   setIsLoading(true);
 
-  // 🔹 Limpa o CPF removendo pontos, traços e espaços
   const cpfLimpo = cpf.replace(/\D/g, "");
 
-  // 🔹 Validação de campos obrigatórios
   if (!nome || !cpfLimpo || !empresa || !imageFile) {
     toaster.create({
       title: "Campos incompletos",
@@ -69,8 +67,6 @@ const handleCadastro = async (e) => {
       setIsLoading(false);
       return;
     }
-
-    // 🔹 Upload da imagem
     const formData = new FormData();
     formData.append("image", imageFile);
 
@@ -128,83 +124,80 @@ const handleCadastro = async (e) => {
         <form onSubmit={handleCadastro}>
     <fieldset disabled={isLoading}>
           <VStack spacing={8} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
-    <Heading textAlign={"center"} size={"2xl"} fontWeight={600}>FAÇA SEU CADASTRO</Heading>
-    <Text textAlign={"center"}>Fazendo o seu cadastro você ganha mais uma chance de participar!</Text>
-    
-    <Input 
-        px={5}
-        id="nome"
-        placeholder="Insira seu nome completo" 
-        type="text" 
-        value={nome}
-        onChange={(e) => setNome(e.target.value)}
-            mb={5}
-    />
-
-    <Input 
-        px={5}
-        mb={5}
-        id="cpf"
-        placeholder="Insira seu CPF"
-        type="text"
-        value={cpf}
-        onChange={(e) => setCpf(e.target.value)}
-    />
-    
-    <Select.Root 
-        collection={empresas}
-        value={empresa ? [empresa.value] : []}
-        onValueChange={(details) => setEmpresa(details.items[0])}
-        mb={5}
-    >
-        <Select.HiddenSelect />
-        <Select.Control>
-            <Select.Trigger>
-                <Select.ValueText placeholder="Selecione sua empresa" />
-            </Select.Trigger>
-            <Select.IndicatorGroup>
-                <Select.Indicator />
-            </Select.IndicatorGroup>
-        </Select.Control>
-        <Portal>
-            <Select.Positioner>
-                <Select.Content>
-                    {empresas.items.map((empresa) => (
-                        <Select.Item item={empresa} key={empresa.value}>
-                            {empresa.label}
-                            <Select.ItemIndicator />
-                        </Select.Item>
-                    ))}
-                </Select.Content>
-            </Select.Positioner>
-        </Portal>
-    </Select.Root>
-    <Text textAlign={"center"}>Insira aqui a imagem que você deseja usar para participar do nosso desafio</Text>
-    <Input 
-        mb={10}
-        px={5}
-        id="file-input"
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        py={1.5}
-    />
-    {imageFile && <Text fontSize="sm" mt={1} color="gray.500">Arquivo: {imageFile.name}</Text>}
-            
-    <Button 
-        type="submit"
-        size={"lg"}
-        colorScheme="blue"
-        variant="solid" 
-        width={"100%"}
-        disabled={isLoading} 
-        loadingText="Enviando..."
-        spinnerPlacement="start"
-    > 
-        <HiPlus style={{ marginRight: '8px' }} /> Fazer cadastro
-    </Button>
-</VStack>
-</fieldset>
+            <Heading textAlign={"center"} size={"2xl"} fontWeight={600}>FAÇA SEU CADASTRO</Heading>
+            <Text textAlign={"center"}>Faça seu cadastro para participar do nosso desafio de dia das crianças!</Text>
+                <Input 
+                    px={5}
+                    id="nome"
+                    placeholder="Insira seu nome completo" 
+                    type="text" 
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                        mb={5}
+                />
+                <Input 
+                    px={5}
+                    mb={5}
+                    id="cpf"
+                    placeholder="Insira seu CPF"
+                    type="text"
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                />
+                <Select.Root 
+                    collection={empresas}
+                    value={empresa ? [empresa.value] : []}
+                    onValueChange={(details) => setEmpresa(details.items[0])}
+                    mb={5}
+                >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                        <Select.Trigger>
+                            <Select.ValueText placeholder="Selecione sua empresa" />
+                        </Select.Trigger>
+                        <Select.IndicatorGroup>
+                            <Select.Indicator />
+                        </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Portal>
+                        <Select.Positioner>
+                            <Select.Content>
+                                {empresas.items.map((empresa) => (
+                                    <Select.Item item={empresa} key={empresa.value}>
+                                        {empresa.label}
+                                        <Select.ItemIndicator />
+                                    </Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Positioner>
+                    </Portal>
+                </Select.Root>
+                <Text textAlign={"center"}>Insira aqui a imagem que você deseja usar para participar do nosso desafio</Text>
+                <Input 
+                    mb={2}
+                    px={5}
+                    id="file-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    py={1.5}
+                />
+                {imageFile && <Text fontSize="sm" mb={10} color="gray.500">Arquivo: {imageFile.name}</Text>}
+                        
+                <Button 
+                    type="submit"
+                    size={"lg"}
+                    colorScheme="blue"
+                    variant="solid" 
+                    width={"100%"}
+                    disabled={isLoading} 
+                    loadingText="Enviando..."
+                    spinnerPlacement="start"
+                > 
+                    <HiPlus style={{ marginRight: '8px' }} /> Fazer cadastro
+                </Button>
+            </VStack>
+            </fieldset>
         </form>
       </Box>
     </AbsoluteCenter>
