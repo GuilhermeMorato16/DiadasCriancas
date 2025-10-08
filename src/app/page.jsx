@@ -188,7 +188,7 @@ export default function Home() {
   // 3. JSX para renderização do formulário
   return (
     <AbsoluteCenter w="full">
-      <Box p={6} w="full" maxW="2xl" {...(isBase && { mt: "150px", mb: "80px" })} >
+      <Box p={6} w="full" maxW="2xl" {...(isBase && { mt: "300px", mb: "80px" })} >
         <form onSubmit={handleCadastro}>
           <fieldset disabled={isLoading}>
             <VStack spacing={6} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
