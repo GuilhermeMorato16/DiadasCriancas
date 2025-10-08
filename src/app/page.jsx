@@ -65,11 +65,21 @@ export default function Home() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        toaster.create({
+          title: "Tipo de arquivo inválido",
+          description: "Apenas arquivos PNG, JPEG, JPG e PDF são permitidos.",
+          type: "error",
+        });
+        e.target.value = ""; // Limpa o input
+        return;
+      }
       const maxSize = 10 * 1024 * 1024; // 10 MB
       if (file.size > maxSize) {
         toaster.create({
           title: "Arquivo muito grande",
-          description: "O tamanho máximo permitido para a imagem é 10 MB.",
+          description: "O tamanho máximo permitido é 10 MB.",
           type: "error",
         });
         e.target.value = ""; // Limpa o input
@@ -230,13 +240,13 @@ export default function Home() {
 
               <Text textAlign={"center"} fontSize="xl" fontWeight={700}>Agora é com você!</Text>
               <Text textAlign={"center"} fontSize="sm">Envie sua foto mais fofa, estilosa ou divertida e participe {isMd && <br />} dessa brincadeiracheia de nostalgia e alegria.</Text>
-              <Input 
+              <Input
                 id="file-input"
                 type="file"
-                accept="image/*"
+                accept="image/*,.pdf"
                 onChange={handleImageChange}
                 p={1.5}
-                
+
             	/>
               {imageFile && <Text fontSize="xs" color="gray.500">Arquivo: {imageFile.name}</Text>}
               
