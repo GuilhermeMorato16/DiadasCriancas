@@ -10,9 +10,10 @@ import {
   Input,
   AbsoluteCenter,
   Text,
-  Portal, 
-  Select, 
+  Portal,
+  Select,
   createListCollection,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { HiPlus } from "react-icons/hi2";
 import { db } from './firebaseConfig';
@@ -26,7 +27,9 @@ export default function Home() {
   const [cpf, setCpf] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [empresa, setEmpresa] = useState(null); 
+  const [empresa, setEmpresa] = useState(null);
+
+  const isMd = useBreakpointValue({ base: false, md: true });
 
   // --- Funções Utilitárias ---
 
@@ -163,15 +166,14 @@ export default function Home() {
   // 3. JSX para renderização do formulário
   return (
     <AbsoluteCenter w="full">
-      <Box p={6} w="full" maxW="2xl">
+      <Box p={6} w="full" maxW="2xl" {...(isMd && { mt: 5 })} >
         <form onSubmit={handleCadastro}>
           <fieldset disabled={isLoading}>
             <VStack spacing={6} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
-              <Heading textAlign={"center"} size={{base: "xl", md: "2xl"}} fontWeight={600}>Cadastre-se e desperte a criança que existe em você!</Heading>
-              <Text textAlign={"center"} fontSize={{base: "xs", md: "sm"}}>Preencha seus dados e entre para o desafio de Dia das Crianças!
-               <br /> Quer <strong>dobrar suas chances de ganhar</strong>? Mostre seu melhor sorriso e envie suas fotos mais criativas!
-</Text>
-              <Text fontWeight={"800"}>Dados necessários:</Text>
+              <Heading textAlign={"center"} size={{base: "2xl", md: "3xl"}} fontWeight={600}>Cadastre-se e desperte a criança {isMd && <br />}que existe em você!</Heading>
+              <Text textAlign={"center"} fontSize={{base: "sm", md: "sm"}}>Preencha seus dados e entre para o desafio de Dia das Crianças!</Text>
+              <Text textAlign={"center"} fontSize={{base: "lg", md: "lg"}}mt={3} mb={0} pb={0}> Quer <strong>dobrar suas chances de ganhar</strong>? <br /><Text textAlign={"center"} as={"span"} fontSize={{base: "sm", md: "sm"}} mt={0} pt={0}> Mostre seu melhor sorriso e envie suas fotos mais criativas!</Text></Text>
+              <Text fontWeight={"800"} mt={5} textAlign={"left"}>Dados necessários:</Text>
               <Input 
                 id="nome"
                 placeholder="Nome completo*" 
@@ -199,7 +201,7 @@ export default function Home() {
                 <Select.HiddenSelect />
                 <Select.Control>
                   <Select.Trigger>
-                    <Select.ValueText placeholder="Selecione sua empresa* (escolha entre as empresas participantes)" />
+                    <Select.ValueText placeholder="Selecione sua empresa* " />
                   </Select.Trigger>
                 </Select.Control>
                 <Portal>
@@ -215,8 +217,8 @@ export default function Home() {
                 </Portal>
             	</Select.Root>
 
-              <Text textAlign={"center"} fontSize="sm" fontWeight={700}>Agora é com você!</Text>
-              <Text textAlign={"center"} fontSize="sm">Envie sua foto mais fofa, estilosa ou divertida e participe dessa brincadeira cheia de nostalgia e alegria.</Text>
+              <Text textAlign={"center"} fontSize="xl" fontWeight={700}>Agora é com você!</Text>
+              <Text textAlign={"center"} fontSize="sm">Envie sua foto mais fofa, estilosa ou divertida e participe {isMd && <br />} dessa brincadeiracheia de nostalgia e alegria.</Text>
               <Input 
                 id="file-input"
                 type="file"
