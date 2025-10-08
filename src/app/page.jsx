@@ -194,7 +194,7 @@ export default function Home() {
             <VStack spacing={6} p={8} borderWidth="1px" borderRadius="lg" shadow="lg">
               <Heading textAlign={"center"} size={{base: "2xl", md: "3xl"}} fontWeight={600}>Cadastre-se e desperte a criança {isMd && <br />}que existe em você!</Heading>
               <Text textAlign={"center"} fontSize={{base: "sm", md: "sm"}}>Preencha seus dados e entre para o desafio de Dia das Crianças!</Text>
-              <Text textAlign={"center"} fontSize={{base: "lg", md: "lg"}}mt={3} mb={0} pb={0}> Quer <strong>dobrar suas chances de ganhar</strong>? <br />
+              <Text textAlign={"center"} fontSize={{base: "lg", md: "lg"}}mt={3} mb={0} pb={0}> <strong>Quer dobrar suas chances de ganhar</strong>? <br />
                 <Text textAlign={"center"} as={"span"} fontSize={{base: "sm", md: "sm"}} mt={0} pt={0}> Mostre seu melhor sorriso quando criança e envie sua foto mais criativa!</Text>
               </Text>
               <Text fontWeight={"800"} mt={5} textAlign={"left"}>Dados necessários:</Text>
