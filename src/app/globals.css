@@ -44,3 +44,6 @@ a {
 .chakra-select__valueText{
   padding: 0 20px;
 }
+input{
+  padding: 0 20px;
+}
